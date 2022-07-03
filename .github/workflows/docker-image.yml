@@ -1,0 +1,216 @@
+name: Python Base to Docker Hub For AWX Builds
+
+on:
+  push:
+    # branches:
+    branches:  
+      - 'main'
+    tags:
+      - 'v*'
+  # pull_request:
+  #   branches:
+  #     - 'main'
+
+jobs:
+  docker-s390x:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2.0.0
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2.0.0
+        with:
+          install: true
+      -  
+        name: Generate build ID
+        id: prep
+        run: |
+          branch=${GITHUB_REF##*/}
+          # sha=${GITHUB_SHA::8}
+          # ts=$(date +%s)
+          ts=$(date +%Y-%m-%d--%H-%M)
+          echo "::set-output name=BUILD_ID::${branch}-${ts}"          
+
+      # -     
+      #   name: Cache Docker layers
+      #   uses: actions/cache@v3.0.4
+      #   with:
+      #     path: /tmp/.buildx-cache
+      #     key: ${{ runner.os }}-buildx-${{ github.sha }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-buildx-
+
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4.0.1
+        with:
+          images: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}
+          tags: |
+            type=ref,event=tag
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2.0.0
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3.0.0
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/s390x
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:latest-s390x, 
+                ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:v1-s390x,
+                ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:${{ steps.prep.outputs.BUILD_ID }}-s390x
+                ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:buildcache-s390x
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:buildcache-s390x,mode=max
+          
+      # -   
+      #   name : Docker Scan Image
+      #   id: scan
+      #   uses: anchore/scan-action@v3.2.5
+      #   with:
+      #     image: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}
+      #     fail-build: false
+      #     acs-report-enable: true
+
+      # - name: Run Snyk to check Docker image for vulnerabilities
+      #   continue-on-error: true
+      #   uses: snyk/actions/docker@master
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #     image: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}
+      #     args: --file=Dockerfile
+
+      # - name: Upload result to GitHub Code Scanning
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     sarif_file: snyk.sarif
+
+
+
+  docker-arm64:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2.0.0
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: arm64
+
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2.0.0
+        with:
+          install: true
+      -  
+        name: Generate build ID
+        id: prep
+        run: |
+          branch=${GITHUB_REF##*/}
+          # sha=${GITHUB_SHA::8}
+          # ts=$(date +%s)
+          ts=$(date +%Y-%m-%d--%H-%M)
+          echo "::set-output name=BUILD_ID::${branch}-${ts}"          
+
+      # -     
+      #   name: Cache Docker layers
+      #   uses: actions/cache@v3.0.4
+      #   with:
+      #     path: /tmp/.buildx-cache
+      #     key: ${{ runner.os }}-buildx-${{ github.sha }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-buildx-
+
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4.0.1
+        with:
+          images: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}
+          tags: |
+            type=ref,event=tag
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2.0.0
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3.0.0
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/arm64
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:latest-arm64, 
+                ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:v1-arm64,
+                ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:${{ steps.prep.outputs.BUILD_ID }}-arm64
+                ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:buildcache-arm64
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:buildcache-arm64,mode=max
+          
+      # -   
+      #   name : Docker Scan Image
+      #   id: scan
+      #   uses: anchore/scan-action@v3.2.5
+      #   with:
+      #     image: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}
+      #     fail-build: false
+      #     acs-report-enable: true
+
+      # - name: Run Snyk to check Docker image for vulnerabilities
+      #   continue-on-error: true
+      #   uses: snyk/actions/docker@master
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #     image: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}
+      #     args: --file=Dockerfile
+
+      # - name: Upload result to GitHub Code Scanning
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     sarif_file: snyk.sarif
+
+  docker-maifest-merge:
+    runs-on: ubuntu-latest
+    needs: [docker-s390x, docker-arm64]
+    steps:
+      - name: Create and push manifest images
+        uses: Noelware/docker-manifest-action@master # or use whatever version.
+        with:
+          base-image: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}
+          extra-images: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:latest-arm64, ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:latest-s390x
+          push: true
