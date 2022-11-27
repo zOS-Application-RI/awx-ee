@@ -31,7 +31,7 @@
     vars: &vars
       container_images: &container_images
         - context: .
-          registry: quay.io
+          registry: docker.io
           repository: docker.io/ashish1981/awx-ee
           tags:
             # If zuul.tag is defined: [ '3', '3.19', '3.19.0' ].  Only works for 3-component tags.
