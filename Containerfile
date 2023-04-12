@@ -48,7 +48,7 @@ FROM $EE_BASE_IMAGE
 USER root
 
 # RUN dnf config-manager --set-enabled crb
-RUN dnf install -y epel-release epel-next-release curl
+# RUN dnf install -y epel-release epel-next-release curl
 # RUN dnf install -y https://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/p/python3-cryptography-39.0.2-2.fc39.s390x.rpm
 # RUN  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
