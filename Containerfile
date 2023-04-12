@@ -7,7 +7,7 @@ ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=
 USER root
 
 RUN set -eux; \
-    ARCH="$(lscpu | awk '/Architecture:/{print $2}')"; \
+    ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
          BINARY_URL='https://rpmfind.net/linux/fedora/linux/development/rawhide/Everything/aarch64/os/Packages/p/python3-cryptography-39.0.2-2.fc39.aarch64.rpm'; \
@@ -46,7 +46,7 @@ COPY --from=galaxy /usr/share/ansible /usr/share/ansible
 # RUN dnf config-manager --set-enabled crb
 # RUN dnf install -y epel-release epel-next-release curl
 RUN set -eux; \
-    ARCH="$(lscpu | awk '/Architecture:/{print $2}')"; \
+    ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
          BINARY_URL='https://rpmfind.net/linux/fedora/linux/development/rawhide/Everything/aarch64/os/Packages/p/python3-cryptography-39.0.2-2.fc39.aarch64.rpm'; \
@@ -87,7 +87,7 @@ FROM $EE_BASE_IMAGE
 USER root
 
 RUN set -eux; \
-    ARCH="$(lscpu | awk '/Architecture:/{print $2}')"; \
+    ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
          BINARY_URL='https://rpmfind.net/linux/fedora/linux/development/rawhide/Everything/aarch64/os/Packages/p/python3-cryptography-39.0.2-2.fc39.aarch64.rpm'; \
