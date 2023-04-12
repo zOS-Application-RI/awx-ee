@@ -5,7 +5,7 @@ FROM $EE_BASE_IMAGE as galaxy
 ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=
 ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=
 USER root
-RUN dnf config-manager --set-enabled crb
+# RUN dnf config-manager --set-enabled crb
 RUN dnf install -y epel-release epel-next-release curl
 RUN dnf install -y https://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/p/python3-cryptography-39.0.2-2.fc39.s390x.rpm
 RUN  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -24,7 +24,7 @@ FROM $EE_BUILDER_IMAGE as builder
 COPY --from=galaxy /usr/share/ansible /usr/share/ansible
 
 
-RUN dnf config-manager --set-enabled crb
+# RUN dnf config-manager --set-enabled crb
 RUN dnf install -y epel-release epel-next-release curl
 RUN dnf install -y https://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/p/python3-cryptography-39.0.2-2.fc39.s390x.rpm
 RUN  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -47,7 +47,7 @@ RUN assemble
 FROM $EE_BASE_IMAGE
 USER root
 
-RUN dnf config-manager --set-enabled crb
+# RUN dnf config-manager --set-enabled crb
 RUN dnf install -y epel-release epel-next-release curl
 # RUN dnf install -y https://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/p/python3-cryptography-39.0.2-2.fc39.s390x.rpm
 # RUN  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
