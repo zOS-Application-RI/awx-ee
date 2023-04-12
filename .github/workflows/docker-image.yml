@@ -1,15 +1,18 @@
 name: Python Base to Docker Hub For AWX Builds
 
 on:
-  push:
-    # branches:
-    branches:  
-      - 'v*'
-    tags:
-      - 'v*'
+  # push:
+  #   # branches:
+  #   branches:  
+  #     - 'v*'
+  #   tags:
+  #     - 'v*'
   pull_request:
     branches:
       - 'main'
+      # - 'v*'
+    # tags:
+    #     - 'v*'
 
 jobs:
   docker-s390x:
