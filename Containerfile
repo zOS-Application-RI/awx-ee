@@ -88,7 +88,7 @@ RUN for dir in \
 WORKDIR /runner
 # END (remove this when we move back to using ansible-builder)
 
-COPY --from=docker.io/ashish1981/receptor:devel /usr/bin/receptor /usr/bin/receptor
+COPY --from=docker.io/ashish1981/receptor /usr/bin/receptor /usr/bin/receptor
 RUN mkdir -p /var/run/receptor
 ADD run.sh /run.sh
 CMD /run.sh
