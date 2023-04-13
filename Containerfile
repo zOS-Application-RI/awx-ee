@@ -1,11 +1,26 @@
 ARG EE_BASE_IMAGE=quay.io/centos/centos:stream9
 ARG EE_BUILDER_IMAGE=quay.io/centos/centos:stream9
+# ARG EE_BASE_IMAGE=docker.io/ashish1981/ansible-runner:latest
+# ARG EE_BUILDER_IMAGE=docker.io/ashish1981/ansible-builder:latest
 
 FROM $EE_BASE_IMAGE as galaxy
 ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=
 ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=
 USER root
 
+RUN dnf -y update && dnf install -y 'dnf-command(config-manager)' && \
+    dnf config-manager --set-enabled crb && \
+    dnf -y install \
+    cargo \
+    gcc \
+    gcc-c++ \
+    git-core \
+    gettext \
+    glibc-langpack-en \
+    libffi-devel \
+    libtool-ltdl-devel \
+    xmlsec1-devel \
+    xmlsec1-openssl-devel
 # BEGIN (remove this when we move back to using ansible-builder)
 RUN dnf install -y python3.9-pip git && pip3 install -U pip && pip3 install ansible-core
 # END (remove this when we move back to using ansible-builder)
@@ -19,7 +34,19 @@ RUN ANSIBLE_GALAXY_DISABLE_GPG_VERIFY=1 ansible-galaxy collection install $ANSIB
 FROM $EE_BUILDER_IMAGE as builder
 
 COPY --from=galaxy /usr/share/ansible /usr/share/ansible
-
+RUN dnf -y update && dnf install -y 'dnf-command(config-manager)' && \
+    dnf config-manager --set-enabled crb && \
+    dnf -y install \
+    cargo \
+    gcc \
+    gcc-c++ \
+    git-core \
+    gettext \
+    glibc-langpack-en \
+    libffi-devel \
+    libtool-ltdl-devel \
+    xmlsec1-devel \
+    xmlsec1-openssl-devel
 # BEGIN (remove this when we move back to using ansible-builder)
 RUN dnf install -y python3.9-pip && pip3 install -U pip && pip3 install ansible-builder wheel
 # END (remove this when we move back to using ansible-builder)
@@ -42,6 +69,19 @@ COPY --from=galaxy /usr/share/ansible /usr/share/ansible
 
 COPY --from=builder /output/ /output/
 
+RUN dnf -y update && dnf install -y 'dnf-command(config-manager)' && \
+    dnf config-manager --set-enabled crb && \
+    dnf -y install \
+    cargo \
+    gcc \
+    gcc-c++ \
+    git-core \
+    gettext \
+    glibc-langpack-en \
+    libffi-devel \
+    libtool-ltdl-devel \
+    xmlsec1-devel \
+    xmlsec1-openssl-devel
 
 # BEGIN (remove this when we move back to using ansible-builder)
 ADD https://raw.githubusercontent.com/ansible/python-builder-image/main/scripts/install-from-bindep /usr/local/bin
@@ -88,7 +128,7 @@ RUN for dir in \
 WORKDIR /runner
 # END (remove this when we move back to using ansible-builder)
 
-COPY --from=quay.io/ansible/receptor:devel /usr/bin/receptor /usr/bin/receptor
+COPY --from=ashish1981/receptor /usr/bin/receptor /usr/bin/receptor
 RUN mkdir -p /var/run/receptor
 ADD run.sh /run.sh
 CMD /run.sh
