@@ -19,6 +19,8 @@ RUN dnf -y update && dnf install -y 'dnf-command(config-manager)' && \
     glibc-langpack-en \
     libffi-devel \
     libtool-ltdl-devel \
+    openssl-devel \
+    rust \
     xmlsec1-devel \
     xmlsec1-openssl-devel
 # BEGIN (remove this when we move back to using ansible-builder)
@@ -45,6 +47,8 @@ RUN dnf -y update && dnf install -y 'dnf-command(config-manager)' && \
     glibc-langpack-en \
     libffi-devel \
     libtool-ltdl-devel \
+    openssl-devel \
+    rust \
     xmlsec1-devel \
     xmlsec1-openssl-devel
 # BEGIN (remove this when we move back to using ansible-builder)
@@ -80,6 +84,8 @@ RUN dnf -y update && dnf install -y 'dnf-command(config-manager)' && \
     glibc-langpack-en \
     libffi-devel \
     libtool-ltdl-devel \
+    openssl-devel \
+    rust \
     xmlsec1-devel \
     xmlsec1-openssl-devel
 
